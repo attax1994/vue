@@ -1,7 +1,7 @@
 /* @flow */
 /* globals MessageChannel */
 
-import { noop } from 'shared/util'
+import { noop } from '../../shared/util'
 import { handleError } from './error'
 import { isIOS, isNative } from './env'
 
