@@ -1,4 +1,4 @@
-import type { Config } from '../src/core/config'
+import type {Config} from '../src/core/config'
 import type VNode from '../src/core/vdom/vnode'
 import type Watcher from '../src/core/observer/watcher'
 
@@ -31,7 +31,7 @@ declare interface Component {
   $slots: { [key: string]: Array<VNode> };
   $scopedSlots: { [key: string]: () => VNodeChildren };
   $vnode: VNode; // the placeholder node for the component in parent's render tree
-  $attrs: { [key: string] : string };
+  $attrs: { [key: string]: string };
   $listeners: { [key: string]: Function | Array<Function> };
   $isServer: boolean;
 
@@ -89,7 +89,7 @@ declare interface Component {
     hydrating?: boolean,
     removeOnly?: boolean,
     parentElm?: any,
-    refElm?: any
+    refElm?: any,
   ) => any;
 
   // createElement
@@ -99,7 +99,7 @@ declare interface Component {
     vnode?: VNode,
     data?: VNodeData,
     children?: VNodeChildren,
-    normalizationType?: number
+    normalizationType?: number,
   ) => VNode | void;
 
   // renderStatic
@@ -145,4 +145,4 @@ declare interface Component {
 
   // allow dynamic method registration
   [key: string]: any
-};
+}

@@ -1,8 +1,8 @@
 // global flag to be compiled away
-declare var __WEEX__: boolean;
+declare var __WEEX__: boolean
 
 // global object in Weex
-declare var WXEnvironment: WeexEnvironment;
+declare var WXEnvironment: WeexEnvironment
 
 declare type Weex = {
   config: WeexConfigAPI;
@@ -51,7 +51,7 @@ declare interface WeexDocument {
   createComment: (text: string) => Object;
   fireEvent: (type: string) => void;
   destroy: () => void;
-};
+}
 
 declare interface WeexTaskCenter {
   instanceId: string;
@@ -59,7 +59,7 @@ declare interface WeexTaskCenter {
   send: (type: string, params: Object, args: Array<any>, options?: Object) => void;
   registerHook: (componentId: string, type: string, hook: string, fn: Function) => void;
   updateData: (componentId: string, data: Object | void, callback?: Function) => void;
-};
+}
 
 declare interface WeexElement {
   nodeType: number;
@@ -85,7 +85,7 @@ declare interface WeexElement {
   removeEvent: (type: string) => void;
   fireEvent: (type: string) => void;
   destroy: () => void;
-};
+}
 
 declare type WeexInstanceOption = {
   instanceId: string;

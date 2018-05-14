@@ -1,5 +1,6 @@
 declare module 'he' {
   declare function escape(html: string): string;
+
   declare function decode(html: string): string;
 }
 
@@ -9,8 +10,9 @@ declare module 'source-map' {
     addMapping(mapping: Object): void;
     toString(): string;
   }
+
   declare class SourceMapConsumer {
-    constructor (map: Object): void;
+    constructor(map: Object): void;
     originalPositionFor(position: { line: number; column: number; }): {
       source: ?string;
       line: ?number;

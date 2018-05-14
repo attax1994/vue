@@ -1,8 +1,8 @@
 /* @flow */
 
 import deindent from 'de-indent'
-import { parseHTML } from 'compiler/parser/html-parser'
-import { makeMap } from 'shared/util'
+import { parseHTML } from '../compiler/parser/html-parser'
+import { makeMap } from '../shared/util'
 
 const splitRE = /\r?\n/g
 const replaceRE = /./g
@@ -18,7 +18,7 @@ type Attribute = {
  */
 export function parseComponent (
   content: string,
-  options?: Object = {}
+  options?: Object = {},
 ): SFCDescriptor {
   const sfc: SFCDescriptor = {
     template: null,
@@ -34,7 +34,7 @@ export function parseComponent (
     attrs: Array<Attribute>,
     unary: boolean,
     start: number,
-    end: number
+    end: number,
   ) {
     if (depth === 0) {
       currentBlock = {
@@ -95,7 +95,7 @@ export function parseComponent (
     depth--
   }
 
-  function padContent (block: SFCBlock, pad: true | "line" | "space") {
+  function padContent (block: SFCBlock, pad: true | 'line' | 'space') {
     if (pad === 'space') {
       return content.slice(0, block.start).replace(replaceRE, ' ')
     } else {

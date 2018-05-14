@@ -16,7 +16,7 @@ declare type CompilerOptions = {
   expectHTML?: boolean; // only false for non-web builds
   isFromDOM?: boolean;
   shouldDecodeTags?: boolean;
-  shouldDecodeNewlines?:  boolean;
+  shouldDecodeNewlines?: boolean;
   shouldDecodeNewlinesForHref?: boolean;
 
   // runtime user-configurable
@@ -184,7 +184,7 @@ declare type SFCDescriptor = {
 declare type SFCBlock = {
   type: string;
   content: string;
-  attrs: {[attribute:string]: string};
+  attrs: { [attribute: string]: string };
   start?: number;
   end?: number;
   lang?: string;

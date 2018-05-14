@@ -53,7 +53,7 @@ declare type ComponentOptions = {
 
   // context
   provide?: { [key: string | Symbol]: any } | () => { [key: string | Symbol]: any };
-  inject?: { [key: string]: InjectKey | { from?: InjectKey, default?: any }} | Array<string>;
+  inject?: { [key: string]: InjectKey | { from?: InjectKey, default?: any } } | Array<string>;
 
   // component v-model customization
   model?: {
