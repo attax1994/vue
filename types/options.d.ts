@@ -1,8 +1,8 @@
-import { Vue, CreateElement, CombinedVueInstance } from "./vue";
-import { VNode, VNodeData, VNodeDirective } from "./vnode";
+import {Vue, CreateElement, CombinedVueInstance} from './vue'
+import {VNode, VNodeData, VNodeDirective} from './vnode'
 
 type Constructor = {
-  new (...args: any[]): any;
+  new(...args: any[]): any;
 }
 
 // we don't support infer props in async component
@@ -18,7 +18,7 @@ interface EsModuleComponent {
 
 export type AsyncComponent<Data=DefaultData<never>, Methods=DefaultMethods<never>, Computed=DefaultComputed, Props=DefaultProps> = (
   resolve: (component: Component<Data, Methods, Computed, Props>) => void,
-  reject: (reason?: any) => void
+  reject: (reason?: any) => void,
 ) => Promise<Component | EsModuleComponent> | void;
 
 /**
@@ -36,8 +36,10 @@ type DataDef<Data, Props, V> = Data | ((this: Readonly<Props> & V) => Data)
  * This type should be used when an array of strings is used for a component's `props` value.
  */
 export type ThisTypedComponentOptionsWithArrayProps<V extends Vue, Data, Methods, Computed, PropNames extends string> =
-  object &
-  ComponentOptions<V, DataDef<Data, Record<PropNames, any>, V>, Methods, Computed, PropNames[], Record<PropNames, any>> &
+  object
+  &
+  ComponentOptions<V, DataDef<Data, Record<PropNames, any>, V>, Methods, Computed, PropNames[], Record<PropNames, any>>
+  &
   ThisType<CombinedVueInstance<V, Data, Methods, Computed, Readonly<Record<PropNames, any>>>>;
 
 /**
@@ -48,12 +50,12 @@ export type ThisTypedComponentOptionsWithRecordProps<V extends Vue, Data, Method
   ComponentOptions<V, DataDef<Data, Props, V>, Methods, Computed, RecordPropsDefinition<Props>, Props> &
   ThisType<CombinedVueInstance<V, Data, Methods, Computed, Readonly<Props>>>;
 
-type DefaultData<V> =  object | ((this: V) => object);
+type DefaultData<V> = object | ((this: V) => object);
 type DefaultProps = Record<string, any>;
-type DefaultMethods<V> =  { [key: string]: (this: V, ...args: any[]) => any };
+type DefaultMethods<V> = { [key: string]: (this: V, ...args: any[]) => any };
 type DefaultComputed = { [key: string]: any };
-export interface ComponentOptions<
-  V extends Vue,
+
+export interface ComponentOptions<V extends Vue,
   Data=DefaultData<V>,
   Methods=DefaultMethods<V>,
   Computed=DefaultComputed,
@@ -68,21 +70,33 @@ export interface ComponentOptions<
 
   el?: Element | string;
   template?: string;
+
   // hack is for funcitonal component type inference, should not used in user code
   render?(createElement: CreateElement, hack: RenderContext<Props>): VNode;
+
   renderError?: (h: () => VNode, err: Error) => VNode;
   staticRenderFns?: ((createElement: CreateElement) => VNode)[];
 
   beforeCreate?(this: V): void;
+
   created?(): void;
+
   beforeDestroy?(): void;
+
   destroyed?(): void;
+
   beforeMount?(): void;
+
   mounted?(): void;
+
   beforeUpdate?(): void;
+
   updated?(): void;
+
   activated?(): void;
+
   deactivated?(): void;
+
   errorCaptured?(err: Error, vm: Vue, info: string): boolean | void;
 
   directives?: { [key: string]: DirectiveFunction | DirectiveOptions };
@@ -113,20 +127,23 @@ export interface FunctionalComponentOptions<Props = DefaultProps, PropDefs = Pro
   props?: PropDefs;
   inject?: InjectOptions;
   functional: boolean;
+
   render?(this: undefined, createElement: CreateElement, context: RenderContext<Props>): VNode;
 }
 
 export interface RenderContext<Props=DefaultProps> {
   props: Props;
   children: VNode[];
+
   slots(): any;
+
   data: VNodeData;
   parent: Vue;
   listeners: { [key: string]: Function | Function[] };
   injections: any
 }
 
-export type Prop<T> = { (): T } | { new (...args: any[]): T & object }
+export type Prop<T> = { (): T } | { new(...args: any[]): T & object }
 
 export type PropValidator<T> = PropOptions<T> | Prop<T> | Prop<T>[];
 
@@ -134,6 +151,7 @@ export interface PropOptions<T=any> {
   type?: Prop<T> | Prop<T>[];
   required?: boolean;
   default?: T | null | undefined | (() => object);
+
   validator?(value: T): boolean;
 }
 
@@ -145,7 +163,9 @@ export type PropsDefinition<T> = ArrayPropsDefinition<T> | RecordPropsDefinition
 
 export interface ComputedOptions<T> {
   get?(): T;
+
   set?(value: T): void;
+
   cache?: boolean;
 }
 
@@ -164,7 +184,7 @@ export type DirectiveFunction = (
   el: HTMLElement,
   binding: VNodeDirective,
   vnode: VNode,
-  oldVnode: VNode
+  oldVnode: VNode,
 ) => void;
 
 export interface DirectiveOptions {
