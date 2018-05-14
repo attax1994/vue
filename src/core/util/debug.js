@@ -1,7 +1,7 @@
 /* @flow */
 
 import config from '../config'
-import { noop } from 'shared/util'
+import {noop} from '../../shared/util'
 
 export let warn = noop
 export let tip = noop
@@ -85,13 +85,11 @@ if (process.env.NODE_ENV !== 'production') {
         vm = vm.$parent
       }
       return '\n\nfound in\n\n' + tree
-        .map((vm, i) => `${
-          i === 0 ? '---> ' : repeat(' ', 5 + i * 2)
-        }${
-          Array.isArray(vm)
-            ? `${formatComponentName(vm[0])}... (${vm[1]} recursive calls)`
-            : formatComponentName(vm)
-        }`)
+        .map((vm, i) => `${i === 0 ? '---> ' : repeat(' ', 5 + i * 2)}
+          ${Array.isArray(vm) ? 
+          `${formatComponentName(vm[0])}... (${vm[1]} recursive calls)` : formatComponentName(vm)
+          }`,
+        )
         .join('\n')
     } else {
       return `\n\n(found in ${formatComponentName(vm)})`
