@@ -8,7 +8,7 @@ import {set} from '../observer/index'
 import {
   ASSET_TYPES,
   LIFECYCLE_HOOKS,
-} from 'shared/constants'
+} from '../../shared/constants'
 
 import {
   extend,
@@ -18,7 +18,7 @@ import {
   capitalize,
   isBuiltInTag,
   isPlainObject,
-} from 'shared/util'
+} from '../../shared/util'
 
 /**
  * Option overwriting strategies are functions that handle
@@ -51,9 +51,6 @@ const defaultStrat = function (parentVal: any, childVal: any): any {
     : childVal
 }
 
-/**
- * Helper that recursively merges two data objects together.
- */
 // 将两个对象合并，碰到引用类型的情况，对其进行递归合并
 function mergeData(to: Object, from: ?Object): Object {
   if (!from) return to
@@ -65,7 +62,7 @@ function mergeData(to: Object, from: ?Object): Object {
     fromVal = from[key]
 
     if (!hasOwn(to, key)) {
-      // 对于新加入的属性，加入observer的观察
+      // 对于新加入的属性，手动触发Vue.set
       set(to, key, fromVal)
     } else if (isPlainObject(toVal) && isPlainObject(fromVal)) {
       // 同为对象，进行递归
@@ -76,32 +73,32 @@ function mergeData(to: Object, from: ?Object): Object {
 }
 
 /**
- * Data
+ * Data相关处理
  */
 // Vue.extend的底层实现
 export function mergeDataOrFn(parentVal: any, childVal: any, vm?: Component): ?Function {
+  // 没有传入vm，说明是函数的合并，返回闭包
   if (!vm) {
-    // in a Vue.extend merge, both should be functions
+    // 在Vue.extend中，传入的应当为function
     if (!childVal) {
       return parentVal
     }
     if (!parentVal) {
       return childVal
     }
-    // when parentVal & childVal are both present,
-    // we need to return a function that returns the
-    // merged result of both functions... no need to
-    // check if parentVal is a function here because
-    // it has to be a function to pass previous merges.
+
+    // 如果parentVal和childVal同时存在，那么返回一个闭包
+    // 闭包执行后返回对两个函数结果进行递归合并的对象
     return function mergedDataFn() {
       return mergeData(
         typeof childVal === 'function' ? childVal.call(this, this) : childVal,
         typeof parentVal === 'function' ? parentVal.call(this, this) : parentVal,
       )
     }
-  } else {
+  }
+  // 如果传入vm，说明是实例的合并，返回合并后的结果
+  else {
     return function mergedInstanceDataFn() {
-      // instance merge
       const instanceData = typeof childVal === 'function'
         ? childVal.call(vm, vm)
         : childVal
@@ -117,12 +114,10 @@ export function mergeDataOrFn(parentVal: any, childVal: any, vm?: Component): ?F
   }
 }
 
-strats.data = function (
-  parentVal: any,
-  childVal: any,
-  vm?: Component,
-): ?Function {
+// data字段的生成策略，这一段决定了data要使用function来创建
+strats.data = function (parentVal: any, childVal: any, vm?: Component): ?Function {
   if (!vm) {
+    // 提示vm.data对象必须经由function来创建
     if (childVal && typeof childVal !== 'function') {
       process.env.NODE_ENV !== 'production' && warn(
         'The "data" option should be a function ' +
@@ -140,12 +135,9 @@ strats.data = function (
 }
 
 /**
- * Hooks and props are merged as arrays.
+ * 合并生命周期钩子，返回形式为Array
  */
-function mergeHook(
-  parentVal: ?Array<Function>,
-  childVal: ?Function | ?Array<Function>,
-): ?Array<Function> {
+function mergeHook(parentVal: ?Array<Function>, childVal: ?Function | ?Array<Function>): ?Array<Function> {
   return childVal
     ? parentVal
       ? parentVal.concat(childVal)
@@ -161,20 +153,16 @@ LIFECYCLE_HOOKS.forEach(hook => {
 
 /**
  * Assets
- *
- * When a vm is present (instance creation), we need to do
- * a three-way merge between constructor options, instance
- * options and parent options.
+ * Assets指component，directive和filter
+ * 创建vm时，要进行三方面的options合并，包括构造器options，实例options和父级options
  */
-function mergeAssets(
-  parentVal: ?Object,
-  childVal: ?Object,
-  vm?: Component,
-  key: string,
-): Object {
+function mergeAssets(parentVal: ?Object, childVal: ?Object, vm?: Component, key: string): Object {
+  // 父级放置于原型链上，做对象委托
   const res = Object.create(parentVal || null)
   if (childVal) {
+    // 提示类型是否正确
     process.env.NODE_ENV !== 'production' && assertObjectType(key, childVal, vm)
+    // 执行merge
     return extend(res, childVal)
   } else {
     return res
@@ -187,27 +175,23 @@ ASSET_TYPES.forEach(function (type) {
 
 /**
  * Watchers.
- *
- * Watchers hashes should not overwrite one
- * another, so we merge them as arrays.
+ * 要保证相同哈希值的Watcher不会去覆盖另一个，就得使用Array的形式
  */
-strats.watch = function (
-  parentVal: ?Object,
-  childVal: ?Object,
-  vm?: Component,
-  key: string,
-): ?Object {
-  // work around Firefox's Object.prototype.watch...
+strats.watch = function (parentVal: ?Object, childVal: ?Object, vm?: Component, key: string): ?Object {
+  // 绕过FireFox的Object.prototype.watch问题
   if (parentVal === nativeWatch) parentVal = undefined
   if (childVal === nativeWatch) childVal = undefined
-  /* istanbul ignore if */
+
   if (!childVal) return Object.create(parentVal || null)
   if (process.env.NODE_ENV !== 'production') {
     assertObjectType(key, childVal, vm)
   }
   if (!parentVal) return childVal
+
   const ret = {}
   extend(ret, parentVal)
+
+  // 使用Array来记录watcher，不是Array就做转换
   for (const key in childVal) {
     let parent = ret[key]
     const child = childVal[key]
@@ -222,17 +206,12 @@ strats.watch = function (
 }
 
 /**
- * Other object hashes.
+ * 其他对象的哈希合并，可以直接覆盖
  */
 strats.props =
   strats.methods =
     strats.inject =
-      strats.computed = function (
-        parentVal: ?Object,
-        childVal: ?Object,
-        vm?: Component,
-        key: string,
-      ): ?Object {
+      strats.computed = function (parentVal: ?Object, childVal: ?Object, vm?: Component, key: string): ?Object {
         if (childVal && process.env.NODE_ENV !== 'production') {
           assertObjectType(key, childVal, vm)
         }
@@ -246,7 +225,7 @@ strats.provide = mergeDataOrFn
 
 
 /**
- * Validate component names
+ * 检查components引入的子组件名称是否合法
  */
 function checkComponents(options: Object) {
   for (const key in options.components) {
@@ -254,6 +233,7 @@ function checkComponents(options: Object) {
   }
 }
 
+// 验证组件名称，这一段决定了组件名必须以字母开头，并只能使用字母和连字符
 export function validateComponentName(name: string) {
   if (!/^[a-zA-Z][\w-]*$/.test(name)) {
     warn(
@@ -271,14 +251,15 @@ export function validateComponentName(name: string) {
 }
 
 /**
- * Ensure all props option syntax are normalized into the
- * Object-based format.
+ * 保证props的写法规整为Object的形式，且内部每个prop都转换为Object
  */
 function normalizeProps(options: Object, vm: ?Component) {
   const props = options.props
   if (!props) return
+
   const res = {}
   let i, val, name
+  // 如果是Array<string>，则转为Object，其键为每个string驼峰式的写法
   if (Array.isArray(props)) {
     i = props.length
     while (i--) {
@@ -290,7 +271,9 @@ function normalizeProps(options: Object, vm: ?Component) {
         warn('props must be strings when using array syntax.')
       }
     }
-  } else if (isPlainObject(props)) {
+  }
+  // 如果是Object，只需转换一下非对象形式声明的prop
+  else if (isPlainObject(props)) {
     for (const key in props) {
       val = props[key]
       name = camelize(key)
@@ -309,7 +292,7 @@ function normalizeProps(options: Object, vm: ?Component) {
 }
 
 /**
- * Normalize all injections into Object-based format
+ * 将Injections的写法规整为Object的形式
  */
 function normalizeInject(options: Object, vm: ?Component) {
   const inject = options.inject
@@ -336,7 +319,7 @@ function normalizeInject(options: Object, vm: ?Component) {
 }
 
 /**
- * Normalize raw function directives into object format.
+ * 将函数形式的directives的写法规整为Object的形式
  */
 function normalizeDirectives(options: Object) {
   const dirs = options.directives
@@ -350,6 +333,8 @@ function normalizeDirectives(options: Object) {
   }
 }
 
+
+// 断言是否为Object
 function assertObjectType(name: string, value: any, vm: ?Component) {
   if (!isPlainObject(value)) {
     warn(
@@ -361,14 +346,9 @@ function assertObjectType(name: string, value: any, vm: ?Component) {
 }
 
 /**
- * Merge two option objects into a new one.
- * Core utility used in both instantiation and inheritance.
+ * 合并两个option对象，包括props，Injections和directive的合并
  */
-export function mergeOptions(
-  parent: Object,
-  child: Object,
-  vm?: Component,
-): Object {
+export function mergeOptions(parent: Object, child: Object, vm?: Component): Object {
   if (process.env.NODE_ENV !== 'production') {
     checkComponents(child)
   }
@@ -377,9 +357,12 @@ export function mergeOptions(
     child = child.options
   }
 
+  // 规整三个字段
   normalizeProps(child, vm)
   normalizeInject(child, vm)
   normalizeDirectives(child)
+
+  // 如果有一些特殊继承规则，则先对父级进行预处理
   const extendsFrom = child.extends
   if (extendsFrom) {
     parent = mergeOptions(parent, extendsFrom, vm)
@@ -389,6 +372,8 @@ export function mergeOptions(
       parent = mergeOptions(parent, child.mixins[i], vm)
     }
   }
+
+  // 合并各个字段
   const options = {}
   let key
   for (key in parent) {
@@ -400,6 +385,7 @@ export function mergeOptions(
     }
   }
 
+  // 套用合并策略，进行某个字段的合并
   function mergeField(key) {
     const strat = strats[key] || defaultStrat
     options[key] = strat(parent[key], child[key], vm, key)
@@ -409,28 +395,21 @@ export function mergeOptions(
 }
 
 /**
- * Resolve an asset.
- * This function is used because child instances need access
- * to assets defined in its ancestor chain.
+ * 检查options中是否有某个asset（component，directive，filter）
+ * 指示子组件实例是否要访问其上层链中定义的asset
  */
-export function resolveAsset(
-  options: Object,
-  type: string,
-  id: string,
-  warnMissing?: boolean,
-): any {
-  /* istanbul ignore if */
+export function resolveAsset(options: Object, type: string, id: string, warnMissing?: boolean): any {
   if (typeof id !== 'string') {
     return
   }
   const assets = options[type]
-  // check local registration variations first
+  // 用三种拼写形式去检查，
   if (hasOwn(assets, id)) return assets[id]
   const camelizedId = camelize(id)
   if (hasOwn(assets, camelizedId)) return assets[camelizedId]
   const PascalCaseId = capitalize(camelizedId)
   if (hasOwn(assets, PascalCaseId)) return assets[PascalCaseId]
-  // fallback to prototype chain
+
   const res = assets[id] || assets[camelizedId] || assets[PascalCaseId]
   if (process.env.NODE_ENV !== 'production' && warnMissing && !res) {
     warn(
