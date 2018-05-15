@@ -1,13 +1,13 @@
 /* @flow */
 
-import config from 'core/config'
+import config from '../../../core/config'
 
 import {
   warn,
   isObject,
   toObject,
   isReservedAttribute
-} from 'core/util/index'
+} from '../../../core/util/index'
 
 /**
  * Runtime helper for merging v-bind="object" into a VNode's data.
