@@ -31,7 +31,7 @@ const strats = config.optionMergeStrategies
 /**
  * Options with restrictions
  */
-// 受约束的设置
+// Options只能在创建实例的时候传入
 if (process.env.NODE_ENV !== 'production') {
   strats.el = strats.propsData = function (parent, child, vm, key) {
     if (!vm) {
