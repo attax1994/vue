@@ -1,7 +1,7 @@
 /* @flow */
 
-import { warn } from 'core/util/index'
-import { cached, isUndef, isPlainObject } from 'shared/util'
+import {warn} from '../../../core/util/index'
+import {cached, isUndef, isPlainObject} from '../../../shared/util'
 
 const normalizeEvent = cached((name: string): {
   name: string,
@@ -21,12 +21,12 @@ const normalizeEvent = cached((name: string): {
     name,
     once,
     capture,
-    passive
+    passive,
   }
 })
 
-export function createFnInvoker (fns: Function | Array<Function>): Function {
-  function invoker () {
+export function createFnInvoker(fns: Function | Array<Function>): Function {
+  function invoker() {
     const fns = invoker.fns
     if (Array.isArray(fns)) {
       const cloned = fns.slice()
@@ -38,17 +38,12 @@ export function createFnInvoker (fns: Function | Array<Function>): Function {
       return fns.apply(null, arguments)
     }
   }
+
   invoker.fns = fns
   return invoker
 }
 
-export function updateListeners (
-  on: Object,
-  oldOn: Object,
-  add: Function,
-  remove: Function,
-  vm: Component
-) {
+export function updateListeners(on: Object, oldOn: Object, add: Function, remove: Function, vm: Component) {
   let name, def, cur, old, event
   for (name in on) {
     def = cur = on[name]
@@ -62,7 +57,7 @@ export function updateListeners (
     if (isUndef(cur)) {
       process.env.NODE_ENV !== 'production' && warn(
         `Invalid handler for event "${event.name}": got ` + String(cur),
-        vm
+        vm,
       )
     } else if (isUndef(old)) {
       if (isUndef(cur.fns)) {
