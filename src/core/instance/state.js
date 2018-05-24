@@ -426,7 +426,7 @@ export function stateMixin(Vue: Class<Component>) {
       warn(`$props is readonly.`, this)
     }
   }
-  // 提供只读的$data和$props属性，不允许触发set
+  // 提供$data和$props属性，作为_data和_props的代理
   Object.defineProperty(Vue.prototype, '$data', dataDef)
   Object.defineProperty(Vue.prototype, '$props', propsDef)
 
