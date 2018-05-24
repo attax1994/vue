@@ -1,6 +1,6 @@
 /* not type checking this file because flow doesn't play well with Proxy */
 
-import config from 'core/config'
+import config from '../../core/config'
 import { warn, makeMap, isNative } from '../util/index'
 
 let initProxy
@@ -24,9 +24,11 @@ if (process.env.NODE_ENV !== 'production') {
     )
   }
 
+  // 指示浏览器环境是否支持Proxy
   const hasProxy =
     typeof Proxy !== 'undefined' && isNative(Proxy)
 
+  // 支持Proxy情况下，对config.keyCodes的set进行拦截，不允许对Vue内建的一些按键值进行修改
   if (hasProxy) {
     const isBuiltInModifier = makeMap('stop,prevent,self,ctrl,shift,alt,meta,exact')
     config.keyCodes = new Proxy(config.keyCodes, {
@@ -64,7 +66,7 @@ if (process.env.NODE_ENV !== 'production') {
 
   initProxy = function initProxy (vm) {
     if (hasProxy) {
-      // determine which proxy handler to use
+      // 选择使用getHandler还是hasHandler
       const options = vm.$options
       const handlers = options.render && options.render._withStripped
         ? getHandler
