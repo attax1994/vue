@@ -430,9 +430,9 @@ export function stateMixin(Vue: Class<Component>) {
   Object.defineProperty(Vue.prototype, '$data', dataDef)
   Object.defineProperty(Vue.prototype, '$props', propsDef)
 
-  // 将data之外的对象绑定成响应式的
+  // 向响应式对象添加响应式的属性
   Vue.prototype.$set = set
-  // 与set对立，解除绑定
+  // 与set对立，删除属性
   Vue.prototype.$delete = del
 
   Vue.prototype.$watch = function (expOrFn: string | Function, cb: any, options?: Object): Function {
