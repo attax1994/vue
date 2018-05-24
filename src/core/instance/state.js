@@ -339,6 +339,7 @@ export function defineComputed(target: any, key: string, userDef: Object | Funct
       )
     }
   }
+  // 直接将其定义到实例上
   Object.defineProperty(target, key, sharedPropertyDefinition)
 }
 
@@ -405,9 +406,6 @@ function createWatcher(vm: Component, expOrFn: string | Function, handler: any, 
  * @param Vue
  */
 export function stateMixin(Vue: Class<Component>) {
-  // flow somehow has problems with directly declared definition object
-  // when using Object.defineProperty, so we have to procedurally build up
-  // the object here.
   const dataDef = {}
   dataDef.get = function () {
     return this._data
@@ -428,10 +426,13 @@ export function stateMixin(Vue: Class<Component>) {
       warn(`$props is readonly.`, this)
     }
   }
+  // 提供只读的$data和$props属性，不允许触发set
   Object.defineProperty(Vue.prototype, '$data', dataDef)
   Object.defineProperty(Vue.prototype, '$props', propsDef)
 
+  // 将data之外的对象绑定成响应式的
   Vue.prototype.$set = set
+  // 与set对立，解除绑定
   Vue.prototype.$delete = del
 
   Vue.prototype.$watch = function (expOrFn: string | Function, cb: any, options?: Object): Function {
