@@ -30,7 +30,7 @@ export function toggleObserving(value: boolean) {
 
 /**
  * Observer类，附着到每个被观察的对象。
- * 一旦被添加，observer会将目标对象的属性转换为getter/setters形式，用于收集依赖和发出更新通知
+ * 一旦被添加，observer会将目标对象的属性转换为getter/setters形式，dep用于收集依赖和发出更新通知
  */
 export class Observer {
   value: any
