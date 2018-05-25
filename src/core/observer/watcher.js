@@ -25,6 +25,7 @@ export default class Watcher {
   id: number
   // 指示是否为深度模式
   deep: boolean
+  // 指示是否为用户创建的Watcher
   user: boolean
   // 指示是否为computedWatcher
   computed: boolean
