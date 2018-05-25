@@ -258,7 +258,7 @@ export function del(target: Array<any> | Object, key: any) {
   }
 
   /**
-   * Array用splice()删除这个元素，注意Array.prototype.splice已经被改造过了，会触发一次更新通知
+   * Array用splice()删除这个成员，注意Array.prototype.splice已经被改造过了，会触发一次更新通知
    */
   if (Array.isArray(target) && isValidArrayIndex(key)) {
     target.splice(key, 1)
@@ -286,8 +286,8 @@ export function del(target: Array<any> | Object, key: any) {
 }
 
 /**
- * 由于不能像属性的getter那样拦截到数组元素的改变，需要在数组改变的时候对数组的每个元素进行依赖收集。
- * 碰到元素为数组的情况，递归处理。
+ * 由于不能像属性的getter那样拦截到数组成员的改变，需要在数组改变的时候对数组的每个成员进行依赖收集。
+ * 碰到成员为数组的情况，递归处理。
  */
 function dependArray(value: Array<any>) {
   for (let e, i = 0, l = value.length; i < l; i++) {
