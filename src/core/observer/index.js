@@ -141,6 +141,7 @@ export function observe(value: any, asRootData: ?boolean): Observer | void {
  * 为对象定义一个响应式属性
  */
 export function defineReactive(obj: Object, key: string, val: any, customSetter?: ?Function, shallow?: boolean) {
+  // 给这个属性提供一个内置的Dep
   const dep = new Dep()
 
   // 检查PropertyDescriptor的configurable
